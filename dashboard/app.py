@@ -94,7 +94,8 @@ ui.page_opts(title="PyShiny Express: Live Data Example", fillable=True)
 # Note the with statement to create the sidebar followed by a colon
 # Everything in the sidebar is indented consistently
 with ui.sidebar(open="open"):
-
+    ui.update_dark_mode(mode="dark")
+    
     ui.h2("Antarctic Explorer", class_="text-center")
     ui.p(
         "A demonstration of real-time temperature readings in Antarctica.",

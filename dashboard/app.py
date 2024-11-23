@@ -79,7 +79,7 @@ def reactive_calc_combined():
 
     # Return a tuple with everything we need
     # Every time we call this function, we'll get all these values
-    return deque_snapshot, df, latest_dictionary_entry
+    return deque_snapshot, df, latest_dictionary_entry, temp
 
 
 
@@ -95,7 +95,7 @@ ui.page_opts(title="PyShiny Express: Live Data Example", fillable=True)
 # Everything in the sidebar is indented consistently
 with ui.sidebar(open="open"):
     ui.update_dark_mode(mode="dark")
-    
+
     ui.h2("Antarctic Explorer", class_="text-center")
     ui.p(
         "A demonstration of real-time temperature readings in Antarctica.",
@@ -133,7 +133,7 @@ with ui.layout_columns():
         @render.text
         def display_temp():
             """Get the latest reading and return a temperature string"""
-            deque_snapshot, df, latest_dictionary_entry = reactive_calc_combined()
+            deque_snapshot, df, latest_dictionary_entry, temp = reactive_calc_combined()
             return f"{latest_dictionary_entry['temp']} C"
 
         "warmer than usual"
@@ -146,7 +146,7 @@ with ui.layout_columns():
         @render.text
         def display_time():
             """Get the latest reading and return a timestamp string"""
-            deque_snapshot, df, latest_dictionary_entry = reactive_calc_combined()
+            deque_snapshot, df, latest_dictionary_entry, temp = reactive_calc_combined()
             return f"{latest_dictionary_entry['timestamp']}"
 
 
@@ -157,7 +157,7 @@ with ui.card(full_screen=True):
     @render.data_frame
     def display_df():
         """Get the latest reading and return a dataframe with current readings"""
-        deque_snapshot, df, latest_dictionary_entry = reactive_calc_combined()
+        deque_snapshot, df, latest_dictionary_entry, temp = reactive_calc_combined()
         pd.set_option('display.width', None)        # Use maximum width
         return render.DataGrid( df,width="100%")
 
@@ -167,7 +167,7 @@ with ui.card():
     @render_plotly
     def display_plot():
         # Fetch from the reactive calc function
-        deque_snapshot, df, latest_dictionary_entry = reactive_calc_combined()
+        deque_snapshot, df, latest_dictionary_entry, temp = reactive_calc_combined()
 
         # Ensure the DataFrame is not empty before plotting
         if not df.empty:
@@ -205,3 +205,18 @@ with ui.card():
             fig.update_layout(xaxis_title="Time",yaxis_title="Temperature (°C)")
 
         return fig
+
+    
+with ui.layout_columns():
+    archive = pd.DataFrame()
+    
+    with ui.card():
+        ui.card_header("Archived Data")
+        @render.data_frame
+        def display_archive():
+            """Creating an archive data frame"""
+            deque_snapshot, df, latest_dictionary_entry, temp = reactive_calc_combined()
+            new_df = pd.DataFrame()
+            new_df = new_df._append(latest_dictionary_entry, ignore_index = True)
+            pd.set_option('display.width', None)        # Use maximum width
+            return render.DataGrid(new_df,width="100%")
